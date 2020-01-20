@@ -1,0 +1,37 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>The Dungeon</title>
+  <meta name="description" content="Turn Order">
+  <meta name="author" content="ACS">
+
+  <link rel="stylesheet" href="css/style.css">
+  <script
+  src="js/jquery-3.4.1.min.js" ></script>
+  
+
+</head>
+
+<body>
+    <h3>Select a monster to view</h3>
+    <div id="frmMonster">
+      <select id="monsterPicker" name="monsterPicker">
+        <option value="" selected>Please choose...</option>
+      </select>
+    </div>
+    <div id="activeMonster">
+        <table>
+        </table>
+    </div>
+
+
+    <div id="turnOrderForm"></div>
+    <div id="turnOrder"></div>
+    <div id="currentTurn"></div>
+
+    <script src="js/dungeon.js"></script>
+</body>
+</html>
