@@ -27,10 +27,32 @@ class Combat {
     enemies = [];
     party = [];
     constructor(enemies,party) {
-        
+
     }
 
     get turnOrder() {}
+}
+
+function genTblRow(obj){
+    let row = document.createElement("tr");
+    $.each(obj, function(i,v){
+        if(i === "_id" || i === "url" || i === "index")return;
+        if(typeof v === "object"){
+          row.appendChild(genTblRow(v));
+          return;
+        }
+        if(i !== "name"){
+          var keyCell = document.createElement("td");
+          keyCell.appendChild(document.createTextNode(i));
+          row.appendChild(keyCell);
+        }
+
+        var valCell = document.createElement("td");
+        valCell.appendChild(document.createTextNode(v));
+
+        row.appendChild(valCell);
+    })
+    return row
 }
 
 function displayMonsterOptions(monsters){
@@ -41,7 +63,7 @@ function displayMonsterOptions(monsters){
         // console.log(value);
         var opt = document.createElement("option");
         opt.value = monster.url;
-        var textnode = document.createTextNode(monster.name);  
+        var textnode = document.createTextNode(monster.name);
         opt.appendChild(textnode);
         $("#monsterPicker").append(opt);
     });
@@ -54,8 +76,9 @@ function displayMonster(monster){
     $.each(monster, function(key,val){
         // console.log(val);
         if(key==="_id" || key==="url")return;
-        
-        let row = document.createElement("tr");
+
+        // let row = document.createElement("tr");
+
         // if(typeof val === "object"){
         //     $.each(val,function(i,x){
         //         let subrow = document.createElement("tr");
@@ -65,21 +88,25 @@ function displayMonster(monster){
         //         subvalCell.appendChild(document.createTextNode(x));
         //         row.appendChild(subrow);
         //     })
-            
+
         // }
-        
-        var keyCell = document.createElement("td");
-        var valCell = document.createElement("td");
-        keyCell.appendChild(document.createTextNode(key));
-        valCell.appendChild(document.createTextNode(val));
-        row.appendChild(keyCell);
-        row.appendChild(valCell);
-        $("#activeMonster table").append(row);
+
+        // var keyCell = document.createElement("td");
+        // var valCell = document.createElement("td");
+        // keyCell.appendChild(document.createTextNode(key));
+        // valCell.appendChild(document.createTextNode(val));
+        // row.appendChild(keyCell);
+        // row.appendChild(valCell);
+
+        let row = new Object;
+        row[key] = val;
+        $("#activeMonster table")
+        .append(document.body.appendChild(genTblRow(row)))
     });
 }
 
 function getSrd(url){
-    
+
     return new Promise((resolve, reject) => {
         $.ajax({
             url: 'http://www.dnd5eapi.co'+url,
@@ -98,8 +125,8 @@ function getSrd(url){
                 return reject(e.message);
             }
         });
-    })     
-    
+    })
+
 }
 
 
@@ -125,7 +152,7 @@ $( document ).ready(function() {
            console.log(err);
         });
     });
-      
+
     // make enemies
     // window.combat.creatures.goblin = new Creature("goblin",12,13,20);
     // add to turn order
