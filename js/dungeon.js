@@ -9,10 +9,11 @@
 class Creature {
     conditions = [];
     initiative = null;
-    constructor(name, ac, totalHp, conditions) {
+    constructor(name, ac, totalHp, speed, conditions) {
         this.name = name;
         this.ac = ac;
         this.totalHp = totalHp;
+        this.speed = speed;
         this.conditions = conditions;
         this.currentHp = totalHp;
     }
@@ -33,46 +34,22 @@ class Combat {
     get turnOrder() {}
 }
 
-// recursive scan
-function scan(obj)
-{
-    var body;
-    var k;
-    if (obj instanceof Object) {
-        for (k in obj){
-            if (obj.hasOwnProperty(k)){
-                body += k + ':<br/>';
-                console.log(k)
-                scan( obj[k] );
-            }
-        }
-    } else {
-        body += 'found value : ' + obj + '<br/>';
-    };
-
-    $("#currentTurn").append(body);
-
-};
-
-// scan(testJSON);
-
-function genTblRow(obj){
+function genTblRow(obj, skipKeys){
     let row = document.createElement("tr");
     $.each(obj, function(i,v){
         if(i === "_id" || i === "url" || i === "index")return;
-
-        var keyCell = document.createElement("td");
-        keyCell.appendChild(document.createTextNode(i));
-        row.appendChild(keyCell);
-
-        var valCell = document.createElement("td");
-        if(typeof v === "object"){
-          valCell.className = i;
-        }else{
-          valCell.appendChild(document.createTextNode(v));
+        if(!skipKeys){
+          var keyCell = document.createElement("td");
+          keyCell.appendChild(document.createTextNode(i));
+          row.appendChild(keyCell);
         }
 
+
+        var valCell = document.createElement("td");
+        valCell.className = i;
+        valCell.appendChild(document.createTextNode(v));
         row.appendChild(valCell);
+
     })
     return row
 }
@@ -104,6 +81,23 @@ function displayMonster(monster){
         $("#activeMonster table")
         .append(genTblRow(row))
     });
+}
+
+// An example of how I should be using the genTblRow() function
+function displayMonsterProficiencies(){
+  Object.keys(dragon.proficiencies).map(function(v) {
+
+	var obj = dragon.proficiencies[v];
+
+	// console.log(v);
+
+	if(typeof obj === "object"){
+		// console.log( obj );
+		$("#activeMonster table")
+		.append(genTblRow( obj, true ));
+        //.append(genTblRow( {[v]: {obj} } ));
+	}
+} )
 }
 
 // function getSrd(url){
@@ -389,6 +383,7 @@ $( document ).ready(function() {
     //     creatures: {},
     //     turnOrder: {}
     // };
+    window.combat = new Combat();
 
     //populate monster dropdown values
     getSrd("/api/monsters").then(function(result){
@@ -400,7 +395,14 @@ $( document ).ready(function() {
     //get data for chosen monster on value change
     $("#monsterPicker").on("change",function(e){
         getSrd(e.target.value).then(function(result){
-            displayMonster(result)
+            displayMonster(result);
+            combat.enemies.push(
+              new Creature(result.name,result.armor_class,result.hit_points,result.speed)
+            );
+            // log out all enemies
+            $(combat.enemies).each( function(v){
+            	console.log(combat.enemies[v]);
+            } )
         }, function(err) {
            console.log(err);
         });
